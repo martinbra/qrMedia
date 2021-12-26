@@ -6,9 +6,11 @@ play your media with the help of some qrcode.
 ### qrcode_generator.py
 pass a range to generate_range to create a list of qrcodes files:
 ```
+# Generate range 0-9:
 file_range = range(10)
-generate_range(file_range)
+
 # saves to qrcodes/*.png
+generate_range(file_range)
 ```
 
 ## TODO'S:
