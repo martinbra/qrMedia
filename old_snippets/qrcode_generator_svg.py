@@ -12,7 +12,7 @@ def generate_img(url, index, folder='qrcodes'):
     code = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
-        #box_size=10,
+        # box_size=10,
         border=2,
     )
 
@@ -25,6 +25,7 @@ def generate_img(url, index, folder='qrcodes'):
         img.save(f"{folder}/{index}.svg")
     except FileNotFoundError:
         print(f"Please create folder {folder}")
+
 
 def generate_range(start, end):
     # TODO: Documentation
