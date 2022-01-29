@@ -2,7 +2,7 @@ from reportlab.graphics import renderPDF
 from reportlab.pdfgen import canvas
 from svglib.svglib import svg2rlg
 from reportlab.lib.pagesizes import letter
-from reportlab.lib.units import cm
+from reportlab.lib.units import cm, mm
 from classes import generate_basic_qrcodes
 
 LABEL = {
@@ -48,11 +48,11 @@ def _scale(drawing, scaling_factor):
     return drawing
 
 
-def _add_image(image_path, page_canvas, x, y):
+def _add_image(image_path, page_canvas, x, y, margin=0):
     drawing = svg2rlg(image_path)
-    scaling_factor = LABEL["Altura"] / QRCODE_SIZE
+    scaling_factor = (LABEL["Altura"]-2*margin) / QRCODE_SIZE
     scaled_drawing = _scale(drawing, scaling_factor=scaling_factor)
-    renderPDF.draw(scaled_drawing, page_canvas, x, y)
+    renderPDF.draw(scaled_drawing, page_canvas, x+margin, y+margin)
 
 
 def _add_vertical_text(x, y, text, page_canvas):
@@ -63,11 +63,11 @@ def _add_vertical_text(x, y, text, page_canvas):
     page_canvas.restoreState()
 
 
-def generate_labels_sheet(qrcodes, position_offset=0):
-    page_canvas = canvas.Canvas('print.pdf', pagesize=letter, bottomup=0)
+def generate_labels_sheet(qrcodes, position_offset=0, page=0):
+    page_canvas = canvas.Canvas(f"print-{page}.pdf", pagesize=letter, bottomup=0)
 
     index = 0
-    font_size = 8
+    font_size = 7
     page_canvas.setFont("Helvetica-Bold", font_size)
 
     # generator
@@ -94,7 +94,7 @@ def generate_labels_sheet(qrcodes, position_offset=0):
         _add_vertical_text(x + LABEL["Altura"] + font_size/2, y + LABEL["Altura"]/2, qrcode.short_name, page_canvas)
 
         # Add QRCODE
-        _add_image(qrcode.generate_qr_code(), page_canvas, x, y)
+        _add_image(qrcode.generate_qr_code(), page_canvas, x, y, margin=1*mm)
 
         index += 1
         print(f"qrcode {index} of {len(qrcodes)} done!")
@@ -103,10 +103,11 @@ def generate_labels_sheet(qrcodes, position_offset=0):
     print(f"{index} labels printed.")
 
     remaining_labels = QR_CODES_PER_SHEET - (len(qrcodes) + position_offset)
-    if remaining_labels > 0:
+    if remaining_labels >= 0:
         print(f"Sobraram {remaining_labels} QRCODES na folha")
     else:
         print(f"Restam {-remaining_labels} QRCODES a serem impressos.")
+        generate_labels_sheet(qrcodes[QR_CODES_PER_SHEET:], position_offset, page+1)
 
 
 if __name__ == '__main__':

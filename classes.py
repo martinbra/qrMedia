@@ -12,9 +12,10 @@ def _add_trailing_slash(url):
 
 class QRCode:
     def __init__(self, qr_url, index, qr_target, short_name=""):
-        self.qr_url = _add_trailing_slash(qr_url) + str(index)
+        self.qr_url = f"{_add_trailing_slash(qr_url)}{index}"
         self.qr_target = qr_target
         self.index = index
+        self.endpoint = short_name
         self.short_name = short_name + str(index)
 
     def __repr__(self):
@@ -45,6 +46,8 @@ class QRCode:
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
+    def get_data(self):
+        return self.endpoint, self.index, self.qr_target
 
 def generate_basic_qrcodes(quantity, offset=0):
     for i in range(offset, quantity+offset):
